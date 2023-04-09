@@ -24,3 +24,11 @@ const upload = multer({
     })
   });
   
+  // Rota de upload de arquivo
+app.post('/upload', upload.single('file'), (req, res, next) => {
+    // Lógica para manipular o arquivo enviado para o Amazon S3
+    // Você pode adicionar metadados, gerar URLs de download, etc.
+    res.json({ message: 'Arquivo enviado com sucesso' });
+  });
+  
+  
