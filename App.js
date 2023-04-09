@@ -31,4 +31,62 @@ app.post('/upload', upload.single('file'), (req, res, next) => {
     res.json({ message: 'Arquivo enviado com sucesso' });
   });
   
+// Rota de download de arquivo
+app.get('/download/:key', (req, res, next) => {
+    const params = {
+      Bucket: 'YOUR_BUCKET_NAME', // substitua com o nome do seu bucket do Amazon S3
+      Key: req.params.key // substitua com o nome da chave do arquivo a ser baixado
+    };
+    s3.getObject(params, (err, data) => {
+      if (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Erro ao baixar arquivo' });
+      } else {
+        res.attachment(data.Metadata.originalname);
+        res.send(data.Body);
+      }
+    });
+  });
+  
+  // Rota de exclusão de arquivo
+  app.delete('/delete/:key', (req, res, next) => {
+    const params = {
+      Bucket: 'YOUR_BUCKET_NAME', // substitua com o nome do seu bucket do Amazon S3
+      Key: req.params.key // substitua com o nome da chave do arquivo a ser excluído
+    };
+    s3.deleteObject(params, (err, data) => {
+      if (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Erro ao excluir arquivo' });
+      } else {
+        res.json({ message: 'Arquivo excluído com sucesso' });
+      }
+    });
+  });
+  
+  // Rota de listagem de arquivos
+  app.get('/list', (req, res, next) => {
+    const params = {
+      Bucket: 'YOUR_BUCKET_NAME' // substitua com o nome do seu bucket do Amazon S3
+    };
+    s3.listObjects(params, (err, data) => {
+      if (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Erro ao listar arquivos' });
+      } else {
+        const files = data.Contents.map(file => ({
+          key: file.Key,
+          originalname: file.Metadata.originalname
+        }));
+        res.json(files);
+      }
+    });
+  });
+  
+  // Adicione outras rotas de API para gerenciamento de arquivos, compartilhamento, etc.
+  
+  // Inicie o servidor
+  app.listen(3000, () => {
+    console.log('Servidor rodando na porta 3000');
+  });
   
